@@ -8,8 +8,8 @@ rm(list = ls())
 setwd("/home/tatiane/Insync/tfr1@de.ufpe.br/Google Drive/master_thesis_Tati/5-scripts_cap3/application_UBXIIARMA/UBXIIARMA_app_Tati")
 
 # Required packages
-library(gdata) #allows to read excel files.  
-library(e1071) #allows to calculate asymetry and kustosis.
+library(gdata)  
+library(e1071)  
 library(tidyverse)
 library(forecast)
 
