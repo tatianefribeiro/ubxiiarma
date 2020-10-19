@@ -1,6 +1,5 @@
 rm(list = ls())
-setwd("/home/tatiane/Insync/tfr1@de.ufpe.br/Google Drive/master_thesis_Tati/5-scripts_cap3/UBXII-ARMA")
-#setwd("/home/charles/Documentos/Tatiane_UBXII-ARMA/UBXII-ARMA")
+
 source("UBXIIarma.fit.R")
 source("simu_UBXIIarma.R")
 
