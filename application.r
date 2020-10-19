@@ -8,8 +8,8 @@ rm(list = ls())
 setwd("/home/tatiane/Insync/tfr1@de.ufpe.br/Google Drive/master_thesis_Tati/5-scripts_cap3/application_UBXIIARMA/UBXIIARMA_app_Tati")
 
 # Required packages
-library(gdata)  
-library(e1071)  
+library(gdata) #allows to read excel files.  
+library(e1071) #allows to calculate asymetry and kustosis.
 library(tidyverse)
 library(forecast)
 
@@ -117,10 +117,10 @@ X_mat <- cbind(C_mat,S_mat)
 #            nbest=10,link = "logit",
 #            X = X, X_hat=X_hat)
 # 
-karma_best <- best.karma(y, sf = c(start = c(year,month),frequency = 12) ,
-           h=h1, pmax=pmax, qmax=qmax,
-           nbest=10,link = "logit",
-           X = X, X_hat=X_hat)
+# karma_best <- best.karma(y, sf = c(start = c(year,month),frequency = 12) ,
+#            h=h1, pmax=pmax, qmax=qmax,
+#            nbest=10,link = "logit",
+#            X = X, X_hat=X_hat)
 
 #The final models are given as follows
 p_ubxiiarma <- 1:2#1:2
@@ -250,17 +250,3 @@ postscript(file = "forecast_comp.eps",horizontal=F,paper="special",width = w1, h
 dev.off()
 
 
-AE <- HoltWinters(y,seasonal = "multiplicative",)
-AE
-pred_val_AE<- as.numeric(predict(AE,h1))
-Prev_val<-as.numeric(yh)
-pred_val_UBXII<-fit_ubxiiarma$forecast
-pred_val_BETA<-fit_barma$forecast
-pred_val_KARMA<-fit_karma$forecast
-plot(Prev_val,xlab = "h",ylab = "EAR",ylim = c(0,1))
-lines(pred_val_UBXII,lty=1)
-lines(pred_val_BETA,lty=2)
-lines(pred_val_KARMA,lty=3)
-lines(pred_val_AE,lty=4,col=2)
-legend("topleft",c("Actual values","UBXII - AR(2)",expression(paste(beta,"AR(2)"), "KARMA(2,2)", "HOLT-Winters" ) ),#pch=vpch,
-       pt.bg="white", pch = c(1,NA,NA,NA,NA),lty = c(NA,1,2,3,4),col = c(1,1,1,2), bty="n")
