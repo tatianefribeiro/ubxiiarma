@@ -53,7 +53,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
     
     prec<- 10
     
-  }else{ # com regressores
+  }else{ # with regressors
     X_hat<-as.matrix(X_hat)
     X<-as.matrix(X)
     x <- cbind(as.matrix(Z),X[(m+1):n,])
@@ -157,7 +157,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       #vc <- as.vector((mu^(prec-1))/((1-mu^prec)*log(1-mu^prec)) * ((log(0.5)*log(1-y1^prec) )/log(1-mu^prec) +1))
       
@@ -363,7 +363,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       Ualpha <- t(vI) %*% mT %*% vc
       Uphi <-   t(P) %*% mT %*% vc
@@ -553,7 +553,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       Ualpha <- t(v) %*% mT %*% vc
       Utheta <- t(rR) %*% mT %*% vc
@@ -788,7 +788,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       Ualpha <- t(v) %*% mT %*% vc
       Uphi <-   t(rP) %*% mT %*% vc
@@ -1050,7 +1050,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       Ualpha <- t(v) %*% mT %*% vc
       Uphi <-   t(rP) %*% mT %*% vc
@@ -1282,7 +1282,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       a3 <- vc*mu*log(mu)/prec
       a4 <- delta-1
       a5 <- ((y1^prec)*log(y1))/(1-y1^prec)
-      a <- as.vector(a1+a2+a3-(a4*a5)) # derivada em relação a phi
+      a <- as.vector(a1+a2+a3-(a4*a5)) # derivative with respect to phi
       
       Ualpha <- t(v) %*% mT %*% vc
       Utheta <- t(rR) %*% mT %*% vc
@@ -1493,8 +1493,10 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
   stderror <- sqrt(diag(z$vcov))
   z$stderror <- stderror
   
-  z$zstat <- abs(z$coef/stderror)
-  z$pvalues <- 2*(1 - pnorm(z$zstat) )
+  # z$zstat <- abs(z$coef/stderror)
+  # z$pvalues <- 2*(1 - pnorm(z$zstat) )
+  z$zstat <- z$coef/stderror
+  z$pvalues <- 2*(1 - pnorm(abs(z$zstat)) )
   
   z$loglik <- opt$value
   #z$loglik <- opt$value*(n/(n-m))
@@ -1682,7 +1684,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       postscript(file = "adjusted.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
       {
         par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+        par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
         par(mgp=c(1.7, 0.45, 0))
         plot(y,type="l",ylab="Serie",xlab="Time")
         lines(z$fitted,col="red")
@@ -1693,7 +1695,7 @@ karma.fit<- function (y, ar, ma, a, b, link, names_phi,names_theta,names_beta,di
       postscript(file = "forecast.eps",horizontal=F,paper="special",width = 6, height = 4.7,family = "Times")
       {
         par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+        par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
         par(mgp=c(1.7, 0.45, 0))
         plot(y_prev,type="l",lty=2,col="red", ylim=c(min(y),max(y)),ylab="RH",xlab="Times")
         abline(v=fim,lty=2)
