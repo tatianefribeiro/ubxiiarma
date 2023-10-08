@@ -1,4 +1,4 @@
-# Implementado por Fabio M Bayer (bayer@ufsm.br) em 15/10/2015
+# Implemented by Fabio M Bayer (bayer@ufsm.br) on October 15, 2015
 
 barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,X,X_hat,resid)
 {
@@ -21,8 +21,8 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
   
   y_prev <- c(rep(NA,(n+h1)))
   
-  # inicializacao dos parametros alpha e phi (beta)
-  if(any(is.na(ar)==F)) # se nao tem componente ar
+  # Initializing the parameters alpha and phi (beta)
+  if(any(is.na(ar)==F)) # without AR component
   {
     P <- matrix(rep(NA,(n-m)*p1),ncol=p1)
     
@@ -36,7 +36,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     Z <- as.matrix(rep(1,(n-m)))
   }
   
-  if(any(is.na(X)==T)) # nao tem regressores
+  if(any(is.na(X)==T)) # without regressors
   {
     x <- as.matrix(Z)
     Y <- y[(m+1):n]
@@ -52,7 +52,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     er = residuals(ajuste)
     sigma2 = sum(er^2)/((n1 - k) * (dlink)^2)
     prec = 1/n1 * sum(mean * (1 - mean)/sigma2 - 1)
-  }else{ # com regressores
+  }else{ # with regressors
     X_hat<-as.matrix(X_hat)
     X<-as.matrix(X)
     x <- cbind(as.matrix(Z),X[(m+1):n,])
@@ -72,10 +72,6 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     
   }
   
-  
-  
-  
-  ############
   
   ######### ARMA model
   if(any(is.na(ar)==F) && any(is.na(ma)==F) && any(is.na(X)==T))
@@ -221,7 +217,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     vI <- as.vector(rep(1,n-m)) 
     
     
-    ###FB  recorrencias
+    ###FB  recorrences
     deta.dalpha <- rep(0,n)
     deta.dphi <- matrix(0, ncol=p1,nrow=n)
     deta.dtheta<- matrix(0, ncol=q1,nrow=n)
@@ -485,7 +481,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
         R[i,] <- error[i+m-ma]
       }
       
-      ###FB  recorrencias
+      ###FB  recorrences
       deta.dalpha <- rep(0,n)
       deta.dtheta<- matrix(0, ncol=q1,nrow=n)
       
@@ -561,7 +557,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     
     vI <- as.vector(rep(1,n-m)) 
     
-    ###FB  recorrencias
+    ###FB  recorrences
     deta.dalpha <- rep(0,n)
     deta.dtheta<- matrix(0, ncol=q1,nrow=n)
     
@@ -702,7 +698,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
       }
       
       
-      ###FB  recorrencias
+      ###FB  recorrences
       deta.dalpha <- rep(0,n)
       deta.dphi <- matrix(0, ncol=p1,nrow=n)
       deta.dtheta<- matrix(0, ncol=q1,nrow=n)
@@ -802,7 +798,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     
     
     
-    ###FB  recorrencias
+    ###FB  recorrences
     deta.dalpha <- rep(0,n)
     deta.dphi <- matrix(0, ncol=p1,nrow=n)
     deta.dtheta<- matrix(0, ncol=q1,nrow=n)
@@ -890,11 +886,6 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
       errorhat[n+i] <- 0 # original scale
     }
   }  # fim BARMAX
-  
-  
-  
-  
-  
   
   
   ######### BARX model
@@ -1089,11 +1080,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
       y_prev[n+i] <- linkinv(ynew_prev[n+i])
       errorhat[n+i] <- 0 # original scale
     }
-  }  # fim BARX
-  
-  
-  
-  
+  }  # end BARX
   
   
   
@@ -1173,7 +1160,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
       }
       
       
-      ###FB  recorrencias
+      ###FB  recorrences
       deta.dalpha <- rep(0,n)
       deta.dtheta<- matrix(0, ncol=q1,nrow=n)
       deta.dbeta<- matrix(0, ncol=k1,nrow=n)
@@ -1260,7 +1247,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     
     
     
-    ###FB  recorrencias
+    ###FB  recorrences
     deta.dalpha <- rep(0,n)
     deta.dtheta<- matrix(0, ncol=q1,nrow=n)
     deta.dbeta<- matrix(0, ncol=k1,nrow=n)
@@ -1379,8 +1366,11 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
   stderror <- sqrt(diag(vcov))
   z$stderror <- stderror
   
-  z$zstat <- abs(z$coef/stderror)
-  z$pvalues <- 2*(1 - pnorm(z$zstat) )
+  # z$zstat <- abs(z$coef/stderror)
+  # z$pvalues <- 2*(1 - pnorm(z$zstat) )
+  
+  z$zstat <- z$coef/stderror
+  z$pvalues <- 2*(1 - pnorm(abs(z$zstat)) )
   
   z$loglik <- opt$value
   #z$loglik <- opt$value*(n/(n-m))
@@ -1422,7 +1412,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     t<-seq(-5,n+6,by=1)
     
     par(mfrow=c(1,1))
-    par(mar=c(2.8, 2.7, 1.2, 1)) # margens c(baixo,esq,cima,direia)
+    par(mar=c(2.8, 2.7, 1.2, 1)) # margins c(bottom, left, top, right)
     par(mgp=c(1.7, 0.45, 0))
     plot(residc,main=" ",xlab="índices",ylab="resíduos", pch = "+",ylim=c(-4,4))
     lines(t,rep(-3,n+12),lty=2,col=1)
@@ -1445,9 +1435,9 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
     legend("topleft",c("Densidade estimada","Normal padrão"),#pch=vpch,
            pt.bg="white", lty=c(1,2), bty="n")
     
-    acf(residc,ylab="FAC",xlab="defasagem") # função de autocorrelação
+    acf(residc,ylab="FAC",xlab="defasagem") # ACF 
     
-    pacf(residc,ylab="FACP",xlab="defasagem") # função de autocorrelação parcial
+    pacf(residc,ylab="FACP",xlab="defasagem") # PACF 
     
     max_r<- max(residc,na.rm=T)
     min_r<- min(residc,na.rm=T)
@@ -1477,7 +1467,7 @@ barma.fit<- function (y, ar, ma, link, names_phi,names_theta,names_beta,diag,h1,
       pdf(file = "resid_v_ind.pdf",width = w1, height = h1,family = "Times")
 {
         par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+        par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
         par(mgp=c(1.7, 0.45, 0))
         plot(residc,main=" ",xlab="índices",ylab="resíduos", pch = "+",ylim=c(-4,4))
         lines(t,rep(-3,n+12),lty=2,col=1)
@@ -1490,7 +1480,7 @@ dev.off()
 pdf(file = "obs_v_fit.pdf",width = w1, height = h1,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
   plot(as.vector(z$fitted), as.vector(y), main=" ", pch = "+",
        xlab="valores ajustados",ylab="valores observados",
@@ -1503,7 +1493,7 @@ dev.off()
 pdf(file = "resid_density.pdf",width = w1, height = h1,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(1.5, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(1.5, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
   
   plot(densidade,ylab="densidade",main=" ",xlab=" ",ylim=c(0,1.15*max(densidade$y)))
@@ -1516,25 +1506,25 @@ dev.off()
 pdf(file = "resid_FAC.pdf",width = w1, height = h1,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
-  acf(residc,ylab="FAC",xlab="defasagem") # função de autocorrelação
+  acf(residc,ylab="FAC",xlab="defasagem") # acf
 }
 dev.off()
 
 pdf(file = "resid_FACP.pdf",width = w1, height = h1,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
-  pacf(residc,ylab="FACP",xlab="defasagem") # função de autocorrelação parcial
+  pacf(residc,ylab="FACP",xlab="defasagem") # pacf
 }
 dev.off()
 
 pdf(file = "qq_plot.pdf",width = w1, height = h1,family = "Times")
 {  
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
   qqnorm(residc, pch = "+",
          xlim=c(0.95*min_r,max_r*1.05),
@@ -1547,7 +1537,7 @@ dev.off()
 pdf(file = "adjusted.pdf",width = 6, height = 4,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
   plot(y,type="l",ylab="serie",xlab="tempo")
   lines(z$fitted,col="red")
@@ -1557,7 +1547,7 @@ dev.off()
 pdf(file = "forecast.pdf",width = 6, height = 4,family = "Times")
 {
   par(mfrow=c(1,1))
-  par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+  par(mar=c(2.8, 2.7, 1, 1)) # margins c(bottom, left, top, right)
   par(mgp=c(1.7, 0.45, 0))
   plot(y_prev,type="l",col="red", ylim=c(min(y),max(y)),ylab="serie",xlab="tempo")
   abline(v=fim,lty=2)
