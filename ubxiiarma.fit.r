@@ -1,12 +1,16 @@
-# Algumas informacoes:
-# diag = 0 : nao plota graficos
-# diag = 1 : plota graficos na tela
-# diga = 2 : gera graficos em pdf e plota graficos na tela
+# Created by Fernando A. Peña-Ramírez, Renata R. Guerra and Tatiane F. Ribeiro (tatianefr@ime.usp.br), October/2020
+# Based on  barma.fit.r codes created by Fabio M. Bayer on October 15, 2015
+#
+# Some informations:
+# diag = 0 : It does not plot the graphics 
+# diag = 1 : It plots the graphics on the screen
+# diag = 2 : It generates the plots in PDF and plot the graph on the screen
+#
+# h : number of steps ahead to make a forecast
 
 ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
-                         h=6, diag=0,X = NA,X_hat=NA)
+                         h=0, diag=0,X = NA,X_hat=NA)
 {
-  library(extRemes)
   source("ubxii-funcs.r")
   if (min(y) <= 0 || max(y) >= 1)
     stop("OUT OF RANGE (0,1)!")
@@ -14,11 +18,10 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   if(is.ts(y)==T)  freq<-frequency(y) else stop("data can be a time-series object")
   
   z<-c()
-  maxit1<-10000
+  maxit1<-50
   p <- max(ar)
   q <- max(ma)
   n <- length(y)
-  #n1 <- n-h
   m <- max(p,q,na.rm=T)
   y1 <- y[(m+1):n]
   p1 <- length(ar)  
@@ -26,7 +29,6 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   error <- rep(0,n) 
   eta <- rep(NA,n)
   
-  ##add by Tatiane                   #%%%%%%%%%%%  ADD
   y_prev <- c(rep(NA,(n+h))) 
   
   linktemp <- substitute(link)
@@ -50,7 +52,7 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   ynew = linkfun(y) 
   ynew_ar <- suppressWarnings(matrix(ynew,(n-1),max(p,1,na.rm=T)))
   
-  ###########################################################3  
+  ###########################################################
   if(any(is.na(ar)) == F) {
     names_phi <- c(paste("phi", ar, sep = ""))
     Z <- suppressWarnings(matrix(ynew, (n-1), p1)[m:(n-1),])} else {
@@ -63,8 +65,7 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   
   if(any(is.na(X)) == F){
     names_beta<-c(paste("beta", 1 : ncol(as.matrix(X)), sep = ""))
-    Xm <- X[(m+1):n, ]      #############   ???Acho que teria que ser  Xm <- X[m:(n-1), ] para ficar
-    #                                      de acordo com ynew_ar
+    Xm <- X[(m+1):n, ]     
     k = ncol(X)
   } else {
     k = 0 
@@ -72,18 +73,17 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
     Xm <- NA
   }
   
-  ###FB  recorrences   #*
+  # Recorrences
   q_1 <- max(q1, 1)
-  R <- matrix(rep(NA, (n-m)*q_1), ncol = q_1)  # pq precisamos repetir NA (nlinhas*ncol), nesse caso
-  k_i <- q1/q_1                                 # útil para o vetor escore (termo R); vai ser sempre 0 (pois q1 pode ser) ou 1?
-  #                                             # não queremos multip a dim pelo num par med moveis, mas sim por 0 ou 1, ie, ou tem ou não tem
+  R <- matrix(rep(NA, (n-m)*q_1), ncol = q_1)  
+  k_i <- q1/q_1                                 
   
   deta.dalpha <- rep(0, n)
   deta.dbeta <- matrix(0, ncol=max(k,1), nrow=n)
   deta.dphi <- matrix(0, ncol=p1, nrow=n)
   deta.dtheta <- matrix(0, ncol=q_1, nrow=n)
   
-  Xstart <- (cbind(rep(1, (n-m)), Xm, Z))         #Conferir se essa Xm está certa mesmo, pois pode ser isso o erro no BETA-ARMA, USAMOS ELA NO CHUTE....
+  Xstart <- (cbind(rep(1, (n-m)), Xm, Z))         
   Xstart <- matrix(apply(Xstart, 1, na.omit),nrow = (n-m),byrow = T)
   ols <- lm.fit(Xstart, ynew[(m+1) : n])$coef
   initial <- c(rep(0, k+p1+q1+1),1)
@@ -166,13 +166,12 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
         (log(1/tau)*log(1+(log(1/q_t))^c_par)*((1+(log(1/y1))^c_par)^(-1))*((1+(log(1/y1))^c_par)-1)*log(log(1/y1)))/((log(1+(log(1/q_t))^c_par))^2)+
         (log(1/tau)*((1+(log(1/q_t))^c_par)-1)*log(log(1/q_t))*log(1+(log(1/y1))^c_par))/((1+(log(1/q_t))^c_par)*(log(1+(log(1/q_t))^c_par))^2)
     )
-    #ones <- rep(1,(n-m))
-    
+
     Ualpha <- t(v) %*% mT %*% a_t
     Ubeta <- t(rM) %*% mT %*% a_t
     Uphi <-   t(rP) %*% mT %*% a_t
     Utheta <- t(rR) %*% mT %*% a_t
-    Uc <- sum(y_sust)#t(y_sust) %*% ones
+    Uc <- sum(y_sust)
     
     rval <- c(Ualpha,Ubeta,Uphi,Utheta,Uc)
     return(rval[rval!=0])
@@ -190,7 +189,6 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   {
     warning("FUNCTION DID NOT CONVERGE WITH ANALITICAL GRADIENT!")
     opt<-optim(initial, loglik, 
-               #  escore.UBXIIarma, 
                method = "BFGS", hessian = TRUE,
                control = list(fnscale = -1, maxit = maxit1, reltol = 1e-12))
     if (opt$conv != 0)
@@ -214,52 +212,47 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
   z$coeff <- coef
   J_inv <- solve(-(opt$hessian))
   z$stderror<-sqrt(diag(J_inv))
-  z$zstat <- abs(z$coef/z$stderror)      # ??? pq módulo aqui? Não seria melhor colocar depois no p-valor?
-  z$pvalues <- 2*(1 - pnorm(z$zstat) )  #2*(1-pt(abs(t_value),df_mod))
-  # z$zstat <- z$coef/z$stderror  
-  # z$pvalues <- 2*(1 - pnorm(abs(z$zstat)) ) 
+  z$zstat <- z$coef/z$stderror
+  z$pvalues <- 2*(1 - pnorm(abs(z$zstat)) )
   z$loglik <- opt$value
   z$counts <- as.numeric(opt$counts[1])
-  
-  if(any(is.na(X)==F))
-  {
-    z$k<- (p1+q1+k+2)
-    z$aic <- -2*(z$loglik*(n/(n-m)))+2*(z$k)
-    z$bic <- -2*(z$loglik*(n/(n-m)))+log(n)*(z$k)
-    z$hq <- -2*(z$loglik*(n/(n-m)))+log(log(n))*(z$k)
-  }else{
-    z$k<- (p1+q1+2)
-    z$aic <- -2*(z$loglik*(n/(n-m)))+2*(z$k)
-    z$bic <- -2*(z$loglik*(n/(n-m)))+log(n)*(z$k)
-    z$hq <- -2*(z$loglik*(n/(n-m)))+log(log(n))*(z$k)
-  }
   
   # if(any(is.na(X)==F))
   # {
   #   z$k<- (p1+q1+k+2)
-  #   z$aic <- -2*(z$loglik)+2*(z$k)
-  #   z$bic <- -2*(z$loglik)+log(n)*(z$k)
-  #   z$hq <- -2*(z$loglik)+log(log(n))*(z$k)
+  #   z$aic <- -2*(z$loglik*(n/(n-m)))+2*(z$k)
+  #   z$bic <- -2*(z$loglik*(n/(n-m)))+log(n)*(z$k)
+  #   z$hq <- -2*(z$loglik*(n/(n-m)))+log(log(n))*(z$k)
   # }else{
   #   z$k<- (p1+q1+2)
-  #   z$aic <- -2*(z$loglik)+2*(z$k)
-  #   z$bic <- -2*(z$loglik)+log(n)*(z$k)
-  #   z$hq <- -2*(z$loglik)+log(log(n))*(z$k)
+  #   z$aic <- -2*(z$loglik*(n/(n-m)))+2*(z$k)
+  #   z$bic <- -2*(z$loglik*(n/(n-m)))+log(n)*(z$k)
+  #   z$hq <- -2*(z$loglik*(n/(n-m)))+log(log(n))*(z$k)
   # }
-  # 
+  
+  if(any(is.na(X)==F))
+  {
+    z$k<- (p1+q1+k+2)
+    z$aic <- -2*(z$loglik)+2*(z$k)
+    z$bic <- -2*(z$loglik)+log(n)*(z$k)
+    z$hq <- -2*(z$loglik)+log(log(n))*(z$k)
+  }else{
+    z$k<- (p1+q1+2)
+    z$aic <- -2*(z$loglik)+2*(z$k)
+    z$bic <- -2*(z$loglik)+log(n)*(z$k)
+    z$hq <- -2*(z$loglik)+log(log(n))*(z$k)
+  }
+
   model_presentation <- cbind(round(z$coef,4),round(z$stderror,4),round(z$zstat,4),round(z$pvalues,4))
   colnames(model_presentation)<-c("Estimate","Std. Error","z value","Pr(>|z|)")
   z$model <- model_presentation
-  
-  
-  
-  #***************************************************************************************************
-  #Fitted values   (NO REGRESSORS)
-  if(k==0){                                     ##########(NO REGRESSORS)
+
+ # Predicted values   (NO REGRESSORS)
+  if(k==0){                                     
     alpha <- as.numeric(coef[1])
     phi <- as.numeric(coef[2:(p1+1)])
     theta <- as.numeric(coef[(p1+2):(p1+q1+1)])
-    c_par <- as.numeric(coef[p1+q1+2]) # precision parameter
+    c_par <- as.numeric(coef[p1+q1+2])  
     
     z$alpha <- alpha
     z$phi <- phi
@@ -273,19 +266,18 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
     if(q1==0) {theta = as.matrix(0);ma=1}
     for(i in (m+1):n)
     {
-      # etahat[i]<-alpha + (phi%*%ynew[i-ar]) + (theta%*%errorhat[i-ma])
       etahat[i]<-alpha + ynew_ar[(i-1),ar]%*%as.matrix(phi) + (theta%*%errorhat[i-ma])
       errorhat[i]<- ynew[i]-etahat[i] # predictor scale
     }
     
-    q_hat <- linkinv(etahat[(m+1):n])   ### fitted values 
+    q_hat <- linkinv(etahat[(m+1):n])   # fitted values 
     
     z$fitted <- ts(c(rep(NA,m),q_hat),start=start(y),frequency=frequency(y))
     z$etahat <- etahat
     z$errorhat <- errorhat
     
     
-    #### Forecasting
+    # Forecasting
     ynew_prev <- c(ynew,rep(NA,h))
     y_prev[1:n] <- z$fitted
     
@@ -297,14 +289,14 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
     }
     
     z$forecast <- y_prev[(n+1):(n+h)]
-  } else{                                        ########### ##########(with REGRESSORS)
+  } else{                              # with REGRESSORS
     X_hat <- as.matrix(X_hat)
     
     alpha <- as.numeric(coef[1])
     beta <- as.numeric(coef[2:(k+1)])
     phi <- as.numeric(coef[(k+2):(k+p1+1)])
     theta <- as.numeric(coef[(k+p1+2):(k+p1+q1+1)])
-    c_par <- as.numeric(coef[length(coef)]) # precision parameter
+    c_par <- as.numeric(coef[length(coef)])  
     
     z$alpha <- alpha
     z$beta <- beta
@@ -320,21 +312,21 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
 
     Xbeta <- X%*%as.matrix(beta)
     Xbeta_ar <- suppressWarnings(matrix(Xbeta, (n-1), max(p, 1, na.rm = T)))
-    
+
     for(i in (m+1):n)
     {
       etahat[i] <- alpha + Xbeta[i] + (ynew_ar[(i-1), ar] - Xbeta_ar[(i-1), ar])%*%as.matrix(phi) +
-        t(as.matrix(theta))%*%error[i-ma]
-      errorhat[i] <- ynew[i] - etahat[i] 
+        t(as.matrix(theta))%*%errorhat[i-ma]
+      errorhat[i] <- ynew[i] - etahat[i]
     }
-    q_hat <- linkinv(etahat[(m+1):n])   ### fitted values 
+    q_hat <- linkinv(etahat[(m+1):n])   # fitted values 
     
     z$fitted <- ts(c(rep(NA,m),q_hat),start=start(y),frequency=frequency(y))
     z$etahat <- etahat
     z$errorhat <- errorhat
     
     
-    #### Forecasting
+    # Forecasting
     ynew_prev <- c(ynew,rep(NA,h))
     y_prev[1:n] <- z$fitted
     
@@ -349,31 +341,16 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
       errorhat[n+i] <- 0
     }
     
-    # Xbeta_prev <- X_prev%*%as.matrix(beta)
-    # Xbeta_prev_ar <- suppressWarnings(matrix(Xbeta_prev, (n-1), max(p, 1, na.rm = T)))
-    # 
-    # for(i in 1:h)
-    # {
-    #   ynew_prev[n+i] <- alpha + Xbeta_prev[i] + 
-    #     (ynew_prev[n+i-ar] - Xbeta_prev_ar[n+i-1, ar])%*%as.matrix(phi) +
-    #     (theta%*%errorhat[n+i-ma])
-    #   y_prev[n+i] <- linkinv(ynew_prev[n+i])
-    #   errorhat[n+i] <- 0 
-    # }
-    
     z$forecast <- y_prev[(n+1):(n+h)]
     
   }
   
   
-  # randomized quantile residuals 
+  # Quantile residuals 
   z$residuals <- as.vector(qnorm(cdf_UBXII(y[(m+1):n],z$fitted[(m+1):n],z$c_par)))
   residc <- z$residuals 
-  
-  
-  #*********************************************************************************************
-  ###################################################
-  ######### GRAPHICS ################################
+
+  # GRAPHICS 
   
   if(diag>0)
   {
@@ -387,120 +364,18 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
     print("Residuals:",quote=F)
     print(summary(residc))
     
-    t<-seq(-5,n+h,by=1)
-    
-    par(mfrow=c(1,1))
-    par(mar=c(2.8, 2.7, 1.2, 1)) 
-    par(mgp=c(1.7, 0.45, 0))
-    plot(residc,main=" ",xlab="Index",ylab="Residuals", pch = "+",
-         ylim=c(-4,4))
-    lines(t,rep(-3,n+h+6),lty=2,col=1)
-    lines(t,rep(3,n+h+6),lty=2,col=1)
-    lines(t,rep(-2,n+h+6),lty=3,col=1)
-    lines(t,rep(2,n+h+6),lty=3,col=1)
-    
-    
-    max_y<- max(c(z$fitted,y),na.rm=T)
-    min_y<- min(c(z$fitted,y),na.rm=T)
-    plot(as.vector(z$fitted), as.vector(y), main=" ", pch = "+",
-         xlab="Fitted values",ylab="Observed data",
-         xlim=c(0.95*min_y,max_y*1.05),
-         ylim=c(0.95*min_y,max_y*1.05))
-    lines(c(-0.2,1.2),c(-0.2,1.2),lty=2)
-    
-    plot(as.vector(z$fitted[(m+1):n]),as.vector(residc), main=" ", pch = "+",
-         xlab="Fitted values",ylab="Residuals")
-    #lines(c(-0.2,1.2),c(-0.2,1.2),lty=2)
-    
-    
-    densidade<-density(residc)
-    plot(densidade,ylab="density",main=" ")
-    lines(densidade$x,dnorm(densidade$x),lty=2)
-    legend("topleft",c("Exact distribution of residuals","Normal approximation"),#pch=vpch,
-           pt.bg="white", lty=c(1,2), bty="n")
-    
-    acf(residc,ylab="ACF",xlab="Lag") 
-    
-    pacf(residc,ylab="PACF",xlab="Lag") 
-    
-    max_r<- max(residc,na.rm=T)
-    min_r<- min(residc,na.rm=T)
-    qqnorm(residc, pch = "+",
-           xlim=c(0.95*min_r,max_r*1.05),
-           ylim=c(0.95*min_r,max_r*1.05),
-           main="",xlab="Normal quantiles",ylab="Empirical quantiles")
-    #qqnorm(residc,pch=1,frame=T, main = "QQ-plot",
-     #      make.plot = T, lwd=1)
-    #lines(c(-10,10),c(-10,10),lty=2)
-    
     par(mfrow=c(1,1))
     plot(y,type="l",ylab="Serie",xlab="Time",ylim=c(min(y),max(y)))
     lines(z$fitted,col="blue",lty=2)
-      legend("topright",c("Observed data","Predicted median"),#pch=vpch,
+      legend("topright",c("Observed data","Predicted median"),
              pt.bg="white", lty=c(1,2), bty="n",col=c(1,"blue"))
     
-    # fim<-end(y)[1]+end(y)[2]/12                   
-    # 
-    # y_prev <- ts(y_prev, start=start(y), frequency=frequency(y))
-    # par(mfrow=c(1,1))
-    # plot(y_prev,type="l",col="red", ylim=c(min(y),max(y)),ylab="Serie",xlab="Time")
-    # abline(v=fim,lty=2)
-    # lines(y)
-    
+   
     w1<-5
     h1<-4
     
     if(diag>1)
     {
-      postscript(file = "histogram.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        hist(y,ylab="Frequency",xlab="y",main="",col=8) 
-      }
-      dev.off()
-      
-      postscript(file = "sazonality.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        monthplot(y,ylab="Stocked hydroelectric energy",xlab="Months") 
-      }
-      dev.off()
-      
-      postscript(file = "y_FAC.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        Acf(residc,ylab="ACF",xlab="Lag") 
-      }
-      dev.off()
-      
-      postscript(file = "y_FACP.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        Pacf(y,ylab="PACF",xlab="Lag")
-      }
-      dev.off()
-      
-      postscript(file = "qq_plot.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {  
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        qqnorm(residc, pch = "+",
-               xlim=c(0.95*min_r,max_r*1.05),
-               ylim=c(0.95*min_r,max_r*1.05),
-               main="",xlab="Normal quantiles",ylab="Empirical quantiles")
-        #abline(0,1,col=2)
-      }
-      dev.off()
-      
       postscript(file = "resid_v_ind.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
       {
         par(mfrow=c(1,1))
@@ -515,30 +390,10 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
       }
       dev.off()
 
-      
-      postscript(file = "resid_FAC.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        acf(residc,ylab="ACF",xlab="Lag") 
-      }
-      dev.off()
-      
-      postscript(file = "resid_FACP.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
-      {
-        par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) 
-        par(mgp=c(1.7, 0.45, 0))
-        pacf(residc,ylab="PACF",xlab="Lag")
-      }
-      dev.off()
-      
-
       postscript(file = "adjusted.eps",horizontal=F,paper="special",width = w1, height = h1,family = "Times")
       {
         par(mfrow=c(1,1))
-        par(mar=c(2.8, 2.7, 1, 1)) # margens c(baixo,esq,cima,direia)
+        par(mar=c(2.8, 2.7, 1, 1))  
         par(mgp=c(1.7, 0.45, 0))
         plot(y,type="l",ylab="Serie",xlab="Time")
         lines(z$fitted,col=2,lty=2)
@@ -550,7 +405,7 @@ ubxiiarma.fit<-function (y, ar = NA, ma = NA, tau = .5,link = "logit",
       
     }    
   }  
-  #*****************************************************************************************************
+  
   return(z)
 }
 
