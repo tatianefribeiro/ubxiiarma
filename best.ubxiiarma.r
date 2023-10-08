@@ -1,32 +1,28 @@
-# Função que testa todos os possiveis modelos de uma BARMA e retorna o melhor modelo
-# segundo o criterio de AIC.
+# Function to test various BARMA models and returns the best one
+# according to AIC criterion
 #
-# Implementado por Fabio M Bayer (bayer@ufsm.br) em 02/10/2014
-# Adaptado para o modelo UBXII-ARMA por Tatiane F. Ribeiro (tfr1@de.ufpe.br) em 15/10/2020
+# Implemented by Fabio M Bayer (bayer@ufsm.br) on October 02, 2014 
 #
-# Dados de entrada:
-# - serie: e a serie temporal de interesse;
-# - sf:  informacao do inicio e da frequencia da serie temporal que deve estar da seguinte maneira.
-#     ex: sf<-c(start=c(1994,7),frequency=12)  # informa o inecio e a frequencia da serie temporal
-# - h: quantidade de observacoes que serao reservadas para fazer previsoes dentre deste intervalo da amostra.
-# - pmax, qmax, Pmax, Qmax: ordens maximas a serem testadas no modelo SARIMAX. Se nao informar valores serao assumidos os padroes vistos abaixo.
-
+# Adapted for the UBXII-ARMA model by Tatiane F. Ribeiro (tatianefr@ime.usp.br) on October 15, 2020
+#
+# Data of input:
+# - time series: it is the time series of interest
+# - sf:  information about the start and frequency of the time series should follow the following format:
+#     ex: sf<-c(start=c(1994,7),frequency=12)  # it informs the start and the frequency of the time series
+# - h: number of observations that will be separated from the sample for out-of-sample forecasting
+# - pmax, qmax, Pmax, Qmax: maximum orders to be tested. If these values were not informed, the default values below will be used
+#
 # OBS.: 
-#  1- As previsoes para as variaveis explicativas sao feitas com Hol-Winters.
-#  2- Essa usa modelos aninhados
-
+#  1- The forecasts for the regressors are obtained from Holt-Winters.
+#  2- It uses nested models 
 
 best.ubxii<-function(serie, sf, h=6, pmax=6, qmax=6, nbest=10,
                      tau=0.5,link = "logit",X=NA,X_hat=NA)
 {
   source("ubxiiarma.fit.r")
-  #n<-length(serie)
-  #out<-seq((n-h+1),n,1)  # para retirar as ultimas h observacoes
-  #y<-ts(serie[-out],start=c(sf[1],sf[2]),frequency=sf[3]) # serie sem as ultimas h observacoes
   y<-ts(serie,start=c(sf[1],sf[2]),frequency=sf[3])
   
-  
-  # inicializa os criterios AIC
+  # It initializes the AIC criteria
   fit<-ubxiiarma.fit(y, ma=1,diag=0,link = link)
   aicmin<-fit$aic
   
@@ -35,13 +31,12 @@ best.ubxii<-function(serie, sf, h=6, pmax=6, qmax=6, nbest=10,
   model1<-model2<-model3<-model4<-model5<-0
   model6<-model7<-model8<-model8<-model10<-0
   
-  best_aic<-rep(Inf,nbest) # guarda os 10 menores AICs
-  #melhores<-rep(0,(nbest)) # guarda as ordem dos 10 melhores modelos
-  melhores<-matrix(rep(0,(nbest*3)),ncol=3) # guarda as ordem dos 10 melhores modelos
+  best_aic<-rep(Inf,nbest) # It saves the 10 smallest AICs
+  melhores<-matrix(rep(0,(nbest*3)),ncol=3) # It saves the order of the 10 best models
   colnames(melhores)<-c("p","q","AIC")
   
-  tot<-0 # inicializa contador de quantos modelos serao testados
-  bug<-0 # incializa contador de quantas vezes deu bug na estimacao Arima(...)
+  tot<-0  
+  bug<-0  
   
   for(p in 0:pmax)
   { 
@@ -60,9 +55,9 @@ best.ubxii<-function(serie, sf, h=6, pmax=6, qmax=6, nbest=10,
         {  
           print(c("NO CONVERGENCE  ",p,q),quote=F)
           bug<-bug+1
-          next # sai desse loop e vai para o proximo
+          next 
         }          
-        if(aicmin>fitubxii$aic) # melhor modelo segundo o AIC
+        if(aicmin>fitubxii$aic) # best model according to AIC
         {  
           aicmin<-fitubxii$aic
           best_model_aic <- fitubxii$model
@@ -74,7 +69,6 @@ best.ubxii<-function(serie, sf, h=6, pmax=6, qmax=6, nbest=10,
           maximo<-order(best_aic)[nbest]
           best_aic[maximo]<-fitubxii$aic
           melhores[maximo,]<-c(p,q,fitubxii$aic)
-          #print(melhores)
         }
         
         
@@ -84,14 +78,14 @@ best.ubxii<-function(serie, sf, h=6, pmax=6, qmax=6, nbest=10,
   
   
   print(" ",quote=F)
-  print("MODELO SELECIONADO VIA AIC",quote=F)
+  print("SELECTED MODEL FROM AIC",quote=F)
   print(best_model_aic,quote=F)
   print(" ",quote=F)
-  print(c("Total de modelos testados =",tot),quote=F)
-  print(c("Total erros na estimacao =",bug),quote=F)
+  print(c("Total of tested models =",tot),quote=F)
+  print(c("Total of errors in the estimation =",bug),quote=F)
   
   print(" ",quote=F)
-  print("OS MELHORES MODELOS",quote=F)
+  print("THE BEST MODELS",quote=F)
   print(melhores,quote=F)
   
 }
