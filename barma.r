@@ -1,25 +1,25 @@
-# Implementado por Fabio M Bayer (bayer@ufsm.br) em 15/10/2015
-# Alteracoes em 17/06/2015
+# Implemented by Fabio M Bayer (bayer@ufsm.br) em 15/10/2015
+# Changes on May 17, 2015
 #
-# Algumas informacoes:
-# diag = 0 : nao plota graficos
-# diag = 1 : plota graficos na tela
-# diga = 2 : gera graficos em pdf e plota graficos na tela
+# Some informations:
+# diag = 0 : It does not plot the graphics 
+# diag = 1 : It plots the graphics on the screen
+# diag = 2 : It generates the plots in PDF and plot the graph on the screen
 #
-# h : quantidade de passos a frente para fazer previsao
+# h : number of steps ahead to make a forecast
 #
-# O objeto de entrada da funcao deve ser serie temporal (ts)
+# The input object of the function should be a time series (ts)
 #
-# Tem quatro tipos de residuos a serem utilizados, com resid de 1 a 4
+# There are four types of residuals to be used, with 'resid' ranging from 1 to 4.
 #
-# Exemplos de uso:
+# Usage examples:
 #
-# 1) BARMA(2,3) com funcao de ligacao logit e previsao 6 passos a frente
+# 1) BARMA(2,3) with logit link function and h = 6 
 # fit <- barma(y,ar=c(1,2),ma=c(1,2),resid=2)
 # 
-# Obs: Perceba que pode ser os lags que voce desejar.
+# Obs: Note that you can choose any lags you desire.
 # 
-# 2) imprimindo graficos em arquivos pdf e com ligacao probit
+# 2) Printing graphs in PDF files with probit link function
 # fit <- barma(y,ar=c(1,2),ma=c(1,2),diag=2,link="probit",resid=3)
 
 
