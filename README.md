@@ -8,7 +8,7 @@ The codes for fitting the beta-ARMA and KARMA models were obtained from the foll
 
 Reference:
 @article{Ribeiro+Pena-Ramirez+Guerra+Alencar+Cordeiro_ubxiiarma2023, 
-author = "Tatiane Fontana Ribeiro and Fernando A. Peña-Ramírez and Renata Rojas Guerra and Gauss Moutinho Cordeiro" 
+author = "Tatiane Fontana Ribeiro and Fernando A. Peña-Ramírez and Renata Rojas Guerra and Airlane P. Alencar and Gauss Moutinho Cordeiro" 
 title = "Forecasting the proportion of stored energy using the Unit Burr XII quantile autoregressive moving average model", 
 journal = "Submitted", 
 volume = "00",
