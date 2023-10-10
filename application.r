@@ -168,7 +168,7 @@ fit_karma = karma(y,
                   X     = X,
                   X_hat = X_hat)
 
-# Final fitted models
+# Table 7: Final fitted models 
 rbind(fit_ubxiiarma$model,fit_barma$model,fit_karma$model)
 #stargazer::stargazer(rbind(fit_ubxiiarma$model,fit_barma$model,fit_karma$model), digits = 4)
 
@@ -290,6 +290,7 @@ q_hat = ts(as.vector(exp(eta_hat)/(1+exp(eta_hat))))
 w1 = 7
 h2 = 5
 
+# Figure 4a
 # Save a eps file
 postscript(file       = "fitt_value.eps",
            horizontal = F,
