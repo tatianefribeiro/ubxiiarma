@@ -8,7 +8,7 @@
 # Clear the memory
 rm(list = objects())
 
-# Required packages
+# Required packages 
 library(e1071)     # To calculate asymmetry and kurtosis
 library(tidyverse) # To use the read_csv() function
 
