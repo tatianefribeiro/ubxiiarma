@@ -97,14 +97,15 @@ fit_ubxiiarma = ubxiiarma.fit(y,
                               X     = X, 
                               X_hat = X_hat)
 
+# Table 9
 fit_ubxiiarma$model
 
-# Residuals
+# Figure 3c and 3d: Residuals
 res_UBXII = fit_ubxiiarma$residuals
 acf(res_UBXII)
 pacf(res_UBXII)
 
-# Plots for the paper
+# Plots for the paper (Figure 4b)
 # Fitted against observed values
 w1 = 7
 h2 = 5
